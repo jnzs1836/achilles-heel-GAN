@@ -9,7 +9,7 @@ def get_cifar_loader(root, batch_size):
          transforms.Resize((64, 64)),
          transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
-    batch_size = 4
+    batch_size = batch_size
 
     trainset = torchvision.datasets.CIFAR10(root=root, train=True,
                                         download=True, transform=transform)
