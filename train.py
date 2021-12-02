@@ -61,7 +61,7 @@ def build_optimizer(generator, discriminator, lr, beta1):
     return optimizerG, optimizerD
 
 
-def train(data_loader, generator, discriminator, latent_size, lr, beta1, n_epochs, device, log_dir):
+def train(data_loader, generator, discriminator, latent_size, lr, beta1, n_epochs, device, log_dir, save_dir, args):
     writer = SummaryWriter(log_dir)
     # Training Loop
 
@@ -86,8 +86,14 @@ def train(data_loader, generator, discriminator, latent_size, lr, beta1, n_epoch
     optimizerG, optimizerD = build_optimizer(generator, discriminator, lr, beta1)
 
     print("Starting Training Loop...")
+    best_epoch = 0
+    best_loss_G = -1
     # For each epoch
+    saving_delay = 10
+    best_generator_state_dict = None
+    best_discriminator_state_dict = None
     for epoch in tqdm.tqdm(range(n_epochs)):
+        epoch_loss_G = 0
         # For each batch in the dataloader
         for i, data in enumerate(data_loader, 0):
 
@@ -146,7 +152,6 @@ def train(data_loader, generator, discriminator, latent_size, lr, beta1, n_epoch
                 tqdm.tqdm.write('[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
                       % (epoch, n_epochs, i, len(data_loader),
                          loss_D.item(), loss_G.item(), D_x, D_G_z1, D_G_z2))
-
             # Save Losses for plotting later
             writer.add_scalar("loss/G", loss_G.item(), iters)
             # G_losses.append(loss_G.item())
@@ -159,8 +164,31 @@ def train(data_loader, generator, discriminator, latent_size, lr, beta1, n_epoch
                 with torch.no_grad():
                     fake = generator(fixed_noise).detach().cpu()
                 img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
-
+            
             iters += 1
+            epoch_loss_G += loss_G.item()
+        epoch_loss_G = epoch_loss_G / len(data_loader)
+
+        if epoch >= saving_delay:
+            ckpt_path = os.path.join(save_dir, "epoch.pkl")
+            backup_ckpt_path = os.path.join(save_dir, "backup.pkl")
+
+            if epoch_loss_G < best_loss_G or best_loss_G < 0:
+                best_generator_state_dict = generator.state_dict()
+                best_discriminator_state_dict = discriminator.state_dict()
+                best_loss_G = epoch_loss_G
+                best_epoch = epoc
+            checkpoint = {
+                "args": args.__dict__,
+                "epoch": epoch,
+                "epoch_generator_state_dict": generator.state_dict(),
+                "epoch_discriminator_state_dict": discriminator.state_dict(),
+                "best_generator_state_dict": best_generator_state_dict,
+                "best_discriminator_state_dict": best_discriminator_state_dict,
+                "best_epoch": best_epoch
+            }   
+            torch.save(checkpoint, ckpt_path)
+            torch.save(checkpoint, backup_ckpt_path)
 
 
 
@@ -170,7 +198,7 @@ def main(args):
 
     generator = Generator(args.channel, args.latent_size, args.generator_feature_size, args.ngpu)
     discriminator = Discriminator(args.channel, args.discriminator_feature_size, args.ngpu)
-    train(train_loader, generator, discriminator, args.latent_size, args.lr, args.beta1, args.n_epochs, device, args.log_dir)
+    train(train_loader, generator, discriminator, args.latent_size, args.lr, args.beta1, args.n_epochs, device, args.log_dir, args)
 
 if __name__ == "__main__":
     main(args)
