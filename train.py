@@ -82,7 +82,8 @@ def train(data_loader, generator, discriminator, latent_size, lr, beta1, n_epoch
     # Establish convention for real and fake labels during training
     real_label = 1.
     fake_label = 0.
-
+    generator = generator.to(device)
+    discriminator = discriminator.to(device)
 
     optimizerG, optimizerD = build_optimizer(generator, discriminator, lr, beta1)
 
@@ -93,6 +94,7 @@ def train(data_loader, generator, discriminator, latent_size, lr, beta1, n_epoch
     saving_delay = 10
     best_generator_state_dict = None
     best_discriminator_state_dict = None
+    
     for epoch in tqdm.tqdm(range(n_epochs)):
         epoch_loss_G = 0
         # For each batch in the dataloader
