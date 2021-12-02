@@ -35,7 +35,8 @@ def str2bool(v):
 parser = argparse.ArgumentParser()
 
 parser.add_argument("--dataset", type=str, default="/home/jnzs1836/code/CSGY_6763/data/cifar-10")
-parser.add_argument("--log_dir", type=str, default="/home/jnzs1836/code/CSGY_6763/experiments/cifar-10")
+parser.add_argument("--log_dir", type=str, default="../experiments/cifar-10/logs")
+parser.add_argument("--save_dir", type=str, default="../experiments/cifar-10/saves")
 
 parser.add_argument("--n_epochs", type=int, default=100)
 parser.add_argument("--batch_size", type=int, default=64)
@@ -198,7 +199,7 @@ def main(args):
 
     generator = Generator(args.channel, args.latent_size, args.generator_feature_size, args.ngpu)
     discriminator = Discriminator(args.channel, args.discriminator_feature_size, args.ngpu)
-    train(train_loader, generator, discriminator, args.latent_size, args.lr, args.beta1, args.n_epochs, device, args.log_dir, args)
+    train(train_loader, generator, discriminator, args.latent_size, args.lr, args.beta1, args.n_epochs, device, args.log_dir, args.save_dir,args)
 
 if __name__ == "__main__":
     main(args)
