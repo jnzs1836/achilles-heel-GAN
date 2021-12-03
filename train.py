@@ -35,7 +35,7 @@ def str2bool(v):
 parser = argparse.ArgumentParser()
 
 parser.add_argument("--dataset", type=str, default="/home/jnzs1836/code/CSGY_6763/data/cifar-10")
-parser.add_argument("--log_dir", type=str, default="../experiments/cifar-10/logs")
+parser.add_argument("--log_dir", type=str, default="../experiments/cifar-10/runs")
 parser.add_argument("--save_dir", type=str, default="../experiments/cifar-10/saves")
 
 parser.add_argument("--n_epochs", type=int, default=100)
