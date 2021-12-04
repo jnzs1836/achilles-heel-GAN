@@ -100,7 +100,7 @@ def train(data_loader, generator, discriminator, latent_size, lr, beta1, n_epoch
         epoch_loss_G = 0
         # For each batch in the dataloader
         for i, data in enumerate(data_loader, 0):
-
+            
             ############################
             # (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
             ###########################
@@ -108,6 +108,8 @@ def train(data_loader, generator, discriminator, latent_size, lr, beta1, n_epoch
             discriminator.zero_grad()
             # Format batch
             real_images = data[0].to(device)
+            print(real_images.size())
+            1/0
             b_size = real_images.size(0)
             label = torch.full((b_size,), real_label, dtype=torch.float, device=device)
             # Forward pass real batch through D
