@@ -1,5 +1,6 @@
 import argparse
 from data.cifar import get_cifar_loader
+from data.lsun import get_lsun_loader
 from models.discriminator import Discriminator
 from models.generator import Generator
 import os
@@ -196,7 +197,7 @@ def train(data_loader, generator, discriminator, latent_size, lr, beta1, n_epoch
 
 
 def main(args):
-    train_loader, test_loader = get_cifar_loader(args.dataset, args.batch_size)
+    train_loader, test_loader = get_lsun_loader(args.dataset, args.batch_size)
     device = torch.device("cuda:0" if (torch.cuda.is_available() and args.ngpu > 0) else "cpu")
 
     generator = Generator(args.channel, args.latent_size, args.generator_feature_size, args.ngpu)
