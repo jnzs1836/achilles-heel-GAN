@@ -84,7 +84,7 @@ def train(data_loader, generator, discriminator, latent_size, lr, beta1, n_epoch
     real_label = 1.
     fake_label = 0.
     generator = generator.to(device)
-    discriminator = discriminator.to(device)
+    discriminator = discriminator.to(device).cuda()
 
     optimizerG, optimizerD = build_optimizer(generator, discriminator, lr, beta1)
 
@@ -92,14 +92,17 @@ def train(data_loader, generator, discriminator, latent_size, lr, beta1, n_epoch
     best_epoch = 0
     best_loss_G = -1
     # For each epoch
-    saving_delay = 10
+    saving_delay = 0
     best_generator_state_dict = None
     best_discriminator_state_dict = None
-    
+    print("num of batch:", len(data_loader))
     for epoch in tqdm.tqdm(range(n_epochs)):
         epoch_loss_G = 0
         # For each batch in the dataloader
-        for i, data in enumerate(data_loader, 0):
+        for i, data in tqdm.tqdm(enumerate(data_loader, 0)):
+            if i >= 100:
+                pass
+                # break
             
             ############################
             # (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
@@ -108,8 +111,6 @@ def train(data_loader, generator, discriminator, latent_size, lr, beta1, n_epoch
             discriminator.zero_grad()
             # Format batch
             real_images = data[0].to(device)
-            print(real_images.size())
-            1/0
             b_size = real_images.size(0)
             label = torch.full((b_size,), real_label, dtype=torch.float, device=device)
             # Forward pass real batch through D
@@ -170,7 +171,21 @@ def train(data_loader, generator, discriminator, latent_size, lr, beta1, n_epoch
                 with torch.no_grad():
                     fake = generator(fixed_noise).detach().cpu()
                 img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
-            
+            if iters % 100 == 0:
+                ckpt_path = os.path.join(save_dir, "iter.pkl")
+                backup_ckpt_path = os.path.join(save_dir, "backup-iter.pkl")
+
+                checkpoint = {
+                    "args": args.__dict__,
+                    "epoch": epoch,
+                    "generator_state_dict": generator.state_dict(),
+                    "discriminator_state_dict": discriminator.state_dict(),
+                    "iter": iters 
+                }   
+                torch.save(checkpoint, ckpt_path)
+                torch.save(checkpoint, backup_ckpt_path)
+
+
             iters += 1
             epoch_loss_G += loss_G.item()
         epoch_loss_G = epoch_loss_G / len(data_loader)
@@ -183,7 +198,7 @@ def train(data_loader, generator, discriminator, latent_size, lr, beta1, n_epoch
                 best_generator_state_dict = generator.state_dict()
                 best_discriminator_state_dict = discriminator.state_dict()
                 best_loss_G = epoch_loss_G
-                best_epoch = epoc
+                best_epoch = epoch
             checkpoint = {
                 "args": args.__dict__,
                 "epoch": epoch,

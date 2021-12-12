@@ -9,9 +9,9 @@ import os
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("--checkpoint_path", type=str, default="../experiments/saves/epoch.pkl")
+parser.add_argument("--checkpoint_path", type=str, default="../experiments/cifar-10/saves/epoch.pkl")
 parser.add_argument("--batch_size", type=int, default=256)
-parser.add_argument("--target_dir", type=str, default="../experiments/generated")
+parser.add_argument("--target_dir", type=str, default="../experiments/cifar-10/generated")
 parser.add_argument("--num_images", type=int, default=1000)
 
 args = parser.parse_args()
@@ -19,12 +19,13 @@ args = parser.parse_args()
 def save_image(image, target_path):
     utils.save_image(image, target_path)
 
-def generate(generator, batch_size, latent_size, num_images, target_dir):
+def generate(generator, batch_size, latent_size, num_images, target_dir, device):
     num_iter = num_images // batch_size
     idx = 0
+    generator = generator.to(device)
     padding_num = len(str(num_images)) + 2
     for i in range(num_iter):
-        noise = torch.randn(batch_size, latent_size, 1, 1, device=device)
+        noise = torch.randn(batch_size, latent_size, 1, 1, device=device).to(device)
         fake = generator(noise)
         for j in range(fake.size(0)):
             idx += 1
@@ -50,9 +51,9 @@ def main(args):
 
     generator = Generator(channel, latent_size, generator_feature_size, ngpu)
     discriminator = Discriminator(channel, discriminator_feature_size, ngpu)
-    generator.load_state_dict(checkpoint['bet'])
-    discriminator.load_state_dict()
-    generate(generator, batch_size, latent_size, num_images, target_dir)
+    generator.load_state_dict(checkpoint['epoch_generator_state_dict'])
+    # discriminator.load_state_dict()
+    generate(generator, batch_size, latent_size, num_images, target_dir, device)
     
 
 if __name__ == "__main__":
