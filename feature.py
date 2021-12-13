@@ -46,7 +46,7 @@ def main(args):
         batch = batch[0]
         batch = batch.cuda()
         features = feature_extractor(batch)
-        all_features.append(features)
+        all_features.append(features.detach())
     all_features = torch.cat(all_features, dim=0)
     checkpoint = {
         "features": all_features
