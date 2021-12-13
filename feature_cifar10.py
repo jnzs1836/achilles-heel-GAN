@@ -32,8 +32,8 @@ def main(args):
     all_features = []
     all_labels = []
     for batch in tqdm.tqdm(dataloader):
-        all_labels.append(labels)
         labels = batch[1]
+        all_labels.append(labels)
         images = batch[0]
         images = images.cuda()
         features = feature_extractor(images)
