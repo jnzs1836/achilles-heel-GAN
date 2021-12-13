@@ -51,7 +51,10 @@ def main(args):
 
     generator = Generator(channel, latent_size, generator_feature_size, ngpu)
     discriminator = Discriminator(channel, discriminator_feature_size, ngpu)
-    generator.load_state_dict(checkpoint['epoch_generator_state_dict'])
+    state_dict_key = "epoch_generator_state_dict"
+    state_dict_key = "generator_state_dict"
+
+    generator.load_state_dict(checkpoint[state_dict_key])
     # discriminator.load_state_dict()
     generate(generator, batch_size, latent_size, num_images, target_dir, device)
     
