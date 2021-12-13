@@ -44,13 +44,15 @@ def main(args):
     dataloader, _ = get_lsun_loader(args.target_dir, args.batch_size)
     all_features = []
     all_labels = []
-    for batch in tqdm.tqdm(dataloader):
-        all_labels.append(labels)
+    for i, batch in tqdm.tqdm(enumerate(dataloader)):
+        if i > 20:
+            break
         labels = batch[1]
         images = batch[0]
         images = images.cuda()
         features = feature_extractor(images)
         all_features.append(features.detach())
+        all_labels.append(labels.cuda())
     all_features = torch.cat(all_features, dim=0)
     all_labels = torch.cat(all_labels, dim=0)
 
