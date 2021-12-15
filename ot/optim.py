@@ -3,7 +3,7 @@ import time
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-def regularized_sinkhorn_knapp(r, c, M, reg, pre_P=None, stop_th=1e-9, check_freq=100, max_iters=1000, show_iter_info=True):
+def regularized_sinkhorn_knopp(r, c, M, reg, pre_P=None, stop_th=1e-9, check_freq=100, max_iters=1000, show_iter_info=True):
     
     if show_iter_info:
         start_time = time.time()
